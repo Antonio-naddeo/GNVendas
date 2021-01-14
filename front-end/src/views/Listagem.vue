@@ -125,14 +125,14 @@ export default {
   methods: {
     async comprar(produto) {
       const { id_produto } = produto;
-      // const validateCliente = this.validateCliente();
-      // if (validateCliente.err) {
-      //   this.resultApi = validateCliente;
-      //   this.$refs.modal.showModal();
-      //   return;
-      // }
+      const validateCliente = this.validateCliente();
+      if (validateCliente.err) {
+        this.resultApi = validateCliente;
+        this.$refs.modal.showModal();
+        return;
+      }
       try {
-        const response = await axios.post(`http://localhost:3333/comprar/${id_produto}`, {nome:'asd', telefone:123,cpf:123});
+        const response = await axios.post(`http://localhost:3333/comprar/${id_produto}`, this.model);
         this.resultApi = { ...response.data, err: false }
       } catch (error) {
         this.resultApi = { 

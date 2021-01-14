@@ -5,7 +5,7 @@ var models = require('../database/models');
 module.exports = {
   async cadastroCompra(data, billet, res, transaction,errorMessage) {
     try {
-      
+
       if(errorMessage) throw errorMessage;
       
       const {
@@ -24,7 +24,7 @@ module.exports = {
       transaction.rollback();
       console.log(error)
       res.status(typeof error === 'string' ? 400 : 500);
-      res.send({message: typeof error === 'string' ? error : 'Ocorreu um erro durante a compra'})
+      res.send(typeof error === 'string' ? error : 'Ocorreu um erro durante a compra')
       
     }
   }

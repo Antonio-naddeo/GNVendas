@@ -47,7 +47,7 @@ module.exports = {
       transaction.rollback();
       console.log(error)
       res.status(typeof error === 'string' ? 400 : 500);
-      res.send({message: typeof error === 'string' ? error : 'Erro de Conexão com Banco de Dados'})
+      res.send( typeof error === 'string' ? error : 'Erro de Conexão com Banco de Dados')
     }
   },
 }
@@ -74,11 +74,12 @@ function validateCadastro(data){
 
   if(typeof nome !== 'string'){
     return { err: true,
-      message: 'nome invalido'
+      message: 'Nome Inválido'
     };
   }
   if (!regNome.test(nome)) {
-    return { err: true, message: "Nome Inválido" };
+    console.log(nome)
+    return { err: true, message: 'Nome Inválido' };
   }
   
   if(isNaN(telefone)){
@@ -87,7 +88,7 @@ function validateCadastro(data){
     };
   }
   if (!regTel.test(telefone)) {
-    return { err: true, message: "Telefone Inválido" };
+    return { err: true, message: 'Telefone Inválido' };
   }
   
   if(isNaN(Number(cpf))){
