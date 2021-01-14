@@ -40,7 +40,7 @@ $ cd front-end
 $ \front-end> npm install
 $ \front-end> cd ..
 $ cd back-end
-$ \back-end> npm install
+$ \back-end> npm install -D
 ```
 inicie o back-end e front-end
 ```sh
@@ -49,7 +49,7 @@ $ \front-end> npm run serve
 ```
 ```sh
 $ cd back-end
-$ \back-end> npm run start
+$ \back-end> npm run dev
 ```
 
 ## **OBS**
