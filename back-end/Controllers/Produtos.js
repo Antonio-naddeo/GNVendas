@@ -40,9 +40,15 @@ module.exports = {
   },
 
   async list(req, res){
-    const produtos = await models.produtos.findAll();
-    res.status(200);
-    res.json(produtos);
+    try {
+      const produtos = await models.produtos.findAll();
+      res.status(200);
+      res.send(produtos);  
+    } catch (error) {
+      res.status(500);
+      res.send({message: 'Ocorreu um erro na conexao com banco de dados'}); 
+      
+    }
   }
 }
 

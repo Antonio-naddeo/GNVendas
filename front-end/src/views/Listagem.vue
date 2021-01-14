@@ -58,14 +58,14 @@
     <!-- <CompraModal ref="modalCompra" :compra="compra" /> -->
     <Modal ref="modal" :title="titleModal">
       <template v-slot:content>
-        <div v-if="resultCompra.err">
-          {{ resultCompra.message }}
+        <div v-if="resultApi.err">
+          {{ resultApi.message }}
         </div>
         
           <div class="d-block text-center"  v-else>
       <h3>link para o boleto:</h3> 
       <br>
-      <a :href="resultCompra.link_boleto">{{resultCompra.link_boleto}}</a>
+      <a :href="resultApi.link_boleto">{{resultApi.link_boleto}}</a>
     </div>
       </template>
     </Modal>
@@ -110,13 +110,13 @@ export default {
         telefone: "",
       },
       produtos: [],
-      resultCompra: {},
+      resultApi: {},
     };
   },
 
   computed: {
     titleModal() {
-      return this.resultCompra.err
+      return this.resultApi.err
         ? "Erro na Compra"
         : "Compra Realizada com Sucesso";
     },
@@ -125,18 +125,23 @@ export default {
   methods: {
     async comprar(produto) {
       const { id_produto } = produto;
-      const validateCliente = this.validateCliente();
-      if (validateCliente.err) {
-        this.resultCompra = validateCliente;
-        this.$refs.modal.showModal();
-        return;
+      // const validateCliente = this.validateCliente();
+      // if (validateCliente.err) {
+      //   this.resultApi = validateCliente;
+      //   this.$refs.modal.showModal();
+      //   return;
+      // }
+      try {
+        const response = await axios.post(`http://localhost:3333/comprar/${id_produto}`, {nome:'asd', telefone:123,cpf:123});
+        this.resultApi = { ...response.data, err: false }
+      } catch (error) {
+        this.resultApi = { 
+          message:'Erro durante a Compra, Verifique os Dados do Cliente' , 
+          err: true }
       }
-      await axios
-        .post(`http://localhost:3333/comprar/${id_produto}`, this.model)
-        .then(
-          (response) => (this.resultCompra = { ...response.data, err: false })
-        )
+      finally{
         this.$refs.modal.showModal();
+      }
     },
 
     validateCliente() {
@@ -163,12 +168,24 @@ export default {
       }
       return { err: false };
     },
+
+    async listProdutos(){
+      try {
+      const response = await axios.get("http://localhost:3333/produtos");
+      this.produtos = response.data;
+    } catch (error) {
+      this.resultApi = {
+        err:true,
+        message: 'Erro durante a Listagem dos produtos'
+      }
+      this.$refs.modal.showModal();
+    }
+
+    }
   },
 
   mounted() {
-    axios
-      .get("http://localhost:3333/produtos")
-      .then((response) => (this.produtos = response.data));
+    this.listProdutos();
   },
 };
 </script>
