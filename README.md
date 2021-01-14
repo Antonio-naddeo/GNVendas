@@ -22,11 +22,16 @@ Faça o donwload do repositorio e execute os seguintes comandos
 $ git clone https://github.com/Antonio-naddeo/GNVendas
 ```
 
-Crie um database chamado gnvendas
+Crie um database chamado gnvendas *OBS
 -altere "username" pelo nome de usuario ja cadastrado no Mysql
 ```sh
 $ mysql -u username -p
 $ mysql> CREATE DATABASE gnvendas CHARACTER SET utf8 COLLATE utf8_swedish_ci;
+```
+Crie as tabelas no banco de dados
+```sh
+$ cd back-end\database
+$ \back-end\database> npx sequelize-cli db:migrate
 ```
 
 Instale as dependências
