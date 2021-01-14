@@ -43,7 +43,7 @@
 .gn_vendas{
   color: white;
   font-size: 30px;
-  margin-left: 20%;
+  margin-left: 5%;
   font-weight: bold;
   position: absolute;
 }
