@@ -20,7 +20,7 @@
             <b-card-text>
               <form @submit.stop.prevent="cadastrar">
                 <b-form-group label="Nome" label-for="nomeCliente">
-              <input
+                  <input
                     type="text"
                     name="nomeCliente"
                     class="input"
@@ -34,7 +34,8 @@
                     v-model="model.cpf"
                     class="input"
                     :mask="['###.###.###-##']"
-                    placeholderChar="#">
+                    placeholderChar="#"
+                  >
                   </the-mask>
                 </b-form-group>
                 <b-form-group label="Telefone" label-for="telefone">
@@ -44,7 +45,8 @@
                     class="input"
                     v-model="model.telefone"
                     :mask="['(##) ####-#####']"
-                    placeholderChar="#">
+                    placeholderChar="#"
+                  >
                   </the-mask>
                 </b-form-group>
               </form>
@@ -53,19 +55,32 @@
         </div>
       </b-col>
     </b-row>
-    <CompraModal ref="modalCompra" :compra="compra" />
+    <!-- <CompraModal ref="modalCompra" :compra="compra" /> -->
+    <Modal ref="modal" :title="titleModal">
+      <template v-slot:content>
+        <div v-if="resultCompra.err">
+          {{ resultCompra.message }}
+        </div>
+        
+          <div class="d-block text-center"  v-else>
+      <h3>link para o boleto:</h3> 
+      <br>
+      <a :href="resultCompra.link_boleto">{{resultCompra.link_boleto}}</a>
+    </div>
+      </template>
+    </Modal>
   </div>
 </template>
 
 <script>
 import ProdutoCard from "../components/ProdutoCard";
-import CompraModal from "../components/CompraModal";
+import Modal from "../components/Modal";
 import axios from "axios";
 
 export default {
   components: {
     ProdutoCard,
-    CompraModal,
+    Modal,
   },
 
   props: {
@@ -91,48 +106,63 @@ export default {
     return {
       model: {
         nome: "",
-        cpf: null,
+        cpf: "",
         telefone: "",
       },
       produtos: [],
-      compra: {},
+      resultCompra: {},
     };
   },
 
   computed: {
-    testeNome(){
-      const nome =this.model.telefone;
-      //const regNome = new RegExp('^[ ]*(.+[ ]+)+.+[ ]*$');
-      const regNom = new RegExp('^[1-9]{2}9?[0-9]{8}$');
-
-      return regNom.test(nome)
-    }
+    titleModal() {
+      return this.resultCompra.err
+        ? "Erro na Compra"
+        : "Compra Realizada com Sucesso";
+    },
   },
 
   methods: {
     async comprar(produto) {
       const { id_produto } = produto;
-      console.log("comprar" + id_produto);
-
+      const validateCliente = this.validateCliente();
+      if (validateCliente.err) {
+        this.resultCompra = validateCliente;
+        this.$refs.modal.showModal();
+        return;
+      }
       await axios
         .post(`http://localhost:3333/comprar/${id_produto}`, this.model)
         .then(
-          (response) => (this.compra = { ...response.data, sucesso: true })
-        );
-
-      this.$refs.modalCompra.showModal();
+          (response) => (this.resultCompra = { ...response.data, err: false })
+        )
+        this.$refs.modal.showModal();
     },
 
-    // validateCliente(){
-    //   const nome = this.model.telefone;
-    //   const telefone = this.model.telefone;
-    //   const cpf = this.model.cpf;
-      
-    //   const regNome = new RegExp('^[ ]*(.+[ ]+)+.+[ ]*$');
-    //   const regtel = new RegExp('^[1-9]{2}9?[0-9]{8}$');
+    validateCliente() {
+      const nome = this.model.nome;
+      const telefone = this.model.telefone;
+      const cpf = this.model.cpf;
 
-    //   if(regNome.test)
-    // }
+      const regNome = new RegExp("^[ ]*(.+[ ]+)+.+[ ]*$");
+      const regTel = new RegExp("^[1-9]{2}9?[0-9]{8}$");
+
+      if (!regNome.test(nome)) {
+        return { err: true, message: "Nome Inválido" };
+      }
+      if (!regTel.test(telefone)) {
+        return { err: true, message: "Telefone Inválido" };
+      }
+      console.log(cpf.length);
+      console.log(cpf.length != 11)
+      if (cpf.length != 11) {
+        return {
+          err: true,
+          message: "O CPF não possui os 11 digítos necessarios",
+        };
+      }
+      return { err: false };
+    },
   },
 
   mounted() {
@@ -144,7 +174,6 @@ export default {
 </script>
 
 <style>
-
 .col1 {
   margin: 20px;
 }
@@ -172,13 +201,13 @@ export default {
   border: 1px solid #888;
   width: 200px;
   height: 200px;
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   animation-name: animatetop;
   animation-duration: 0.4s;
   clear: both;
 }
-.input{
+.input {
   width: 90%;
-  align-self:center;
+  align-self: center;
 }
 </style>

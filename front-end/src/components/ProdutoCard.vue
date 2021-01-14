@@ -9,7 +9,7 @@
     <b-card-text>
       R${{produto.valor}}
     </b-card-text>
-    <b-button @click="compra" variant="primary">Comprar</b-button>
+    <b-button @click="compra" variant="light" class="button" >Comprar</b-button>
   </b-card>
   </div>
 </template>
@@ -47,6 +47,7 @@ export default {
   clear: both;
 }
 .produto-card{
+  color: #008b9f;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -55,5 +56,18 @@ export default {
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
   overflow: hidden !important;
+}
+.button {
+  margin: auto;
+  width: 80%;
+  background-color: #f37021;
+  color: white;
+  font-weight: bold;
+  text-emphasis-color: #b94000;
+  border-color: #f37021;
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  font-size: 20px;
 }
 </style>

@@ -27,10 +27,23 @@
               v-money="money"
             />
           </b-form-group>
-          <b-button type="submit"  variant="light" class="button">Cadastrar</b-button>
+          <b-button type="submit" variant="light" class="button"
+            >Cadastrar</b-button
+          >
         </form>
       </div>
     </b-form-group>
+    <Modal ref="modal" :title="titleModal">
+      <template v-slot:content>
+        <div v-if="resultCadastro.err">
+          {{ resultCadastro.message }}
+        </div>
+        <div class="d-block text-center" v-else>
+          <h3>Material {{ resultCadastro.nome }} Cadastrado</h3>
+          <br />
+        </div>
+      </template>
+    </Modal>
   </div>
 </template>
 
@@ -38,8 +51,14 @@
 import { VMoney } from "v-money";
 import axios from "axios";
 
+import Modal from "../components/Modal";
+
 export default {
   name: "Cadastro",
+
+  components: {
+    Modal,
+  },
 
   directives: { money: VMoney },
 
@@ -56,39 +75,75 @@ export default {
         suffix: "",
         precision: 2,
       },
+      resultCadastro: {},
     };
   },
   computed: {
-    preco(){
-      const valor = this.model.valor.substring(2);
-      const valorWithoutDot = valor.replace('.','');
-      return valorWithoutDot.replace(',','.');
-    }
+    titleModal() {
+      return this.resultCadastro.err
+        ? "Erro no Cadastro do Produto"
+        : "Cadastro realizado";
+    },
   },
 
   methods: {
-    cadastrar() {
+    async cadastrar() {
       const valor = this.removeCurrency(this.model.valor);
       const dataToSend = {
         nome: this.model.nome,
         valor,
+      };
+      const validateProduto = this.validateProduto(valor);
+      if (validateProduto.err) {
+        this.resultCadastro = validateProduto;
+        this.$refs.modal.showModal();
+        return;
       }
-      axios
+      await axios
         .post("http://localhost:3333/", dataToSend)
-        .then((response) => console.log(response.data));
+        .then(
+          (response) => (this.resultCadastro = { ...response.data, err: false })
+        );
 
-      this.model.nome = '';
-      this.model.valor = '';
-
+      this.$refs.modal.showModal();
+      this.model.nome = "";
+      this.model.valor = "";
     },
 
-    removeCurrency(val){
+    removeCurrency(val) {
       const valor = val.substring(2);
-      const valorWithoutDot = valor.replace('.','');
-      return valorWithoutDot.replace(',','.');
-    }
-  },
+      const valorWithoutDot = valor.replace(".", "");
+      return valorWithoutDot.replace(",", ".");
+    },
 
+    validateProduto(valor) {
+      if (!this.model.nome.length) {
+        return {
+          err: true,
+          message: "O produto deve ter um nome",
+        };
+      }
+      if (this.model.nome.length > 255) {
+        return {
+          err: true,
+          message: "O nome do produto deve conter no máximo 255 caracteres",
+        };
+      }
+      if (isNaN(parseFloat(valor))) {
+        return {
+          err: true,
+          message: "O valor deve ser um número",
+        };
+      }
+      if (parseFloat(valor) < 5) {
+        return {
+          err: true,
+          message: "O valor do produto deve ser ao menos R$5,00",
+        };
+      }
+      return { err: false };
+    },
+  },
 };
 </script>
 
